@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.screenshotmanager.data.ScreenshotEntity
 import com.example.screenshotmanager.data.ScreenshotRepository
+import com.example.screenshotmanager.data.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,11 +16,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ScreenshotViewModel @Inject constructor(
-    private val repository: ScreenshotRepository
+    private val repository: ScreenshotRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
+
+    val apiKey: StateFlow<String> = settingsRepository.apiKey
 
     val screenshots: StateFlow<List<ScreenshotEntity>> = _searchQuery
         .combine(repository.allScreenshots) { query, list ->
@@ -36,6 +40,10 @@ class ScreenshotViewModel @Inject constructor(
 
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query
+    }
+
+    fun setApiKey(key: String) {
+        settingsRepository.saveApiKey(key)
     }
 
     fun refresh() {

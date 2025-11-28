@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,10 +60,16 @@ fun ScreenshotApp() {
         ) { innerPadding ->
             if (hasPermission) {
                 val viewModel: ScreenshotViewModel = viewModel()
-                LaunchedEffect(Unit) {
-                    viewModel.refresh()
+                val apiKey by viewModel.apiKey.collectAsState()
+                
+                if (apiKey.isBlank()) {
+                    ApiKeyDialog(onApiKeyEntered = viewModel::setApiKey)
+                } else {
+                    LaunchedEffect(Unit) {
+                        viewModel.refresh()
+                    }
+                    HomeScreen(viewModel = viewModel, modifier = Modifier.padding(innerPadding))
                 }
-                HomeScreen(viewModel = viewModel, modifier = Modifier.padding(innerPadding))
             } else {
                 Box(
                     modifier = Modifier
@@ -83,4 +90,32 @@ fun ScreenshotApp() {
             }
         }
     }
+}
+
+@Composable
+fun ApiKeyDialog(onApiKeyEntered: (String) -> Unit) {
+    var text by remember { mutableStateOf("") }
+    
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = {},
+        title = { Text("Enter Gemini API Key") },
+        text = {
+            androidx.compose.material3.TextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("API Key") }
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = { 
+                    if (text.isNotBlank()) {
+                        onApiKeyEntered(text)
+                    }
+                }
+            ) {
+                Text("Save")
+            }
+        }
+    )
 }

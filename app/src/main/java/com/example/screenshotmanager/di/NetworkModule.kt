@@ -1,6 +1,7 @@
 package com.example.screenshotmanager.di
 
 import com.example.screenshotmanager.data.GeminiService
+import com.example.screenshotmanager.data.SettingsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,7 +14,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGeminiService(): GeminiService {
-        return GeminiService()
+    fun provideGeminiService(settingsRepository: SettingsRepository): GeminiService {
+        return GeminiService(settingsRepository)
     }
 }
