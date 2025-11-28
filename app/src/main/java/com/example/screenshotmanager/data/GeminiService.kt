@@ -10,12 +10,14 @@ class GeminiService @Inject constructor(
 ) {
     suspend fun analyzeScreenshot(bitmap: Bitmap): ScreenshotAnalysis {
         val apiKey = settingsRepository.apiKey.value
+        val modelName = settingsRepository.modelName.value
+        
         if (apiKey.isBlank()) {
             return ScreenshotAnalysis("API Key missing", "Error")
         }
 
         val generativeModel = GenerativeModel(
-            modelName = "gemini-1.5-flash",
+            modelName = modelName,
             apiKey = apiKey
         )
 

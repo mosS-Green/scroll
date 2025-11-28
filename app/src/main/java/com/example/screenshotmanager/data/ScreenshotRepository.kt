@@ -8,6 +8,7 @@ import android.provider.MediaStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,6 +23,33 @@ class ScreenshotRepository @Inject constructor(
     val allScreenshots: Flow<List<ScreenshotEntity>> = screenshotDao.getAllScreenshots()
 
     fun searchScreenshots(query: String): Flow<List<ScreenshotEntity>> = screenshotDao.searchScreenshots(query)
+
+    private var contentObserver: android.database.ContentObserver? = null
+
+    fun startMonitoring() {
+        if (contentObserver != null) return
+
+        contentObserver = object : android.database.ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
+                    processNewScreenshots()
+                }
+            }
+        }
+
+        context.contentResolver.registerContentObserver(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            true,
+            contentObserver!!
+        )
+    }
+
+    fun stopMonitoring() {
+        contentObserver?.let {
+            context.contentResolver.unregisterContentObserver(it)
+            contentObserver = null
+        }
+    }
 
     suspend fun processNewScreenshots() {
         withContext(Dispatchers.IO) {

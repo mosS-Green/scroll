@@ -20,10 +20,15 @@ class ScreenshotViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
+    init {
+        repository.startMonitoring()
+    }
+
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
     val apiKey: StateFlow<String> = settingsRepository.apiKey
+    val modelName: StateFlow<String> = settingsRepository.modelName
 
     val screenshots: StateFlow<List<ScreenshotEntity>> = _searchQuery
         .combine(repository.allScreenshots) { query, list ->
@@ -46,9 +51,22 @@ class ScreenshotViewModel @Inject constructor(
         settingsRepository.saveApiKey(key)
     }
 
+    fun setModelName(model: String) {
+        settingsRepository.saveModelName(model)
+    }
+
+    fun getScreenshot(uri: String): ScreenshotEntity? {
+        return screenshots.value.find { it.uri == uri }
+    }
+
     fun refresh() {
         viewModelScope.launch {
             repository.processNewScreenshots()
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        repository.stopMonitoring()
     }
 }

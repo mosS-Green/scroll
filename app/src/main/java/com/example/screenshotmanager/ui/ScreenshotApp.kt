@@ -23,6 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.screenshotmanager.ui.theme.ScreenshotManagerTheme
 
 @Composable
@@ -61,6 +66,7 @@ fun ScreenshotApp() {
             if (hasPermission) {
                 val viewModel: ScreenshotViewModel = viewModel()
                 val apiKey by viewModel.apiKey.collectAsState()
+                val navController = rememberNavController()
                 
                 if (apiKey.isBlank()) {
                     ApiKeyDialog(onApiKeyEntered = viewModel::setApiKey)
@@ -68,7 +74,45 @@ fun ScreenshotApp() {
                     LaunchedEffect(Unit) {
                         viewModel.refresh()
                     }
-                    HomeScreen(viewModel = viewModel, modifier = Modifier.padding(innerPadding))
+                    
+                    NavHost(
+                        navController = navController,
+                        startDestination = "home",
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable("home") {
+                            HomeScreen(
+                                viewModel = viewModel,
+                                onSettingsClick = { navController.navigate("settings") },
+                                onScreenshotClick = { screenshot ->
+                                    // Encode URI to pass as argument
+                                    val encodedUri = java.net.URLEncoder.encode(screenshot.uri, "UTF-8")
+                                    navController.navigate("detail/$encodedUri")
+                                }
+                            )
+                        }
+                        composable("settings") {
+                            SettingsScreen(
+                                viewModel = viewModel,
+                                onBackClick = { navController.popBackStack() }
+                            )
+                        }
+                        composable(
+                            route = "detail/{uri}",
+                            arguments = listOf(navArgument("uri") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val uri = backStackEntry.arguments?.getString("uri")
+                            val decodedUri = java.net.URLDecoder.decode(uri, "UTF-8")
+                            val screenshot = viewModel.getScreenshot(decodedUri)
+                            
+                            if (screenshot != null) {
+                                DetailScreen(
+                                    screenshot = screenshot,
+                                    onBackClick = { navController.popBackStack() }
+                                )
+                            }
+                        }
+                    }
                 }
             } else {
                 Box(
