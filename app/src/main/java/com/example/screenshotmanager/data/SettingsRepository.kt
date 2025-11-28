@@ -18,7 +18,7 @@ class SettingsRepository @Inject constructor(
     private val _apiKey = MutableStateFlow(prefs.getString("api_key", "") ?: "")
     val apiKey: StateFlow<String> = _apiKey.asStateFlow()
 
-    private val _modelName = MutableStateFlow(prefs.getString("model_name", "gemini-1.5-flash-latest") ?: "gemini-1.5-flash-latest")
+    private val _modelName = MutableStateFlow(prefs.getString("model_name", "gemini-flash-latest") ?: "gemini-flash-latest")
     val modelName: StateFlow<String> = _modelName.asStateFlow()
 
     fun saveApiKey(key: String) {

@@ -85,16 +85,16 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             ModelOption(
-                name = "Gemini 1.5 Flash (Latest)",
-                value = "gemini-1.5-flash-latest",
-                selected = currentModel == "gemini-1.5-flash-latest",
-                onSelect = { viewModel.setModelName("gemini-1.5-flash-latest") }
+                name = "Gemini Flash (Latest)",
+                value = "gemini-flash-latest",
+                selected = currentModel == "gemini-flash-latest",
+                onSelect = { viewModel.setModelName("gemini-flash-latest") }
             )
             ModelOption(
-                name = "Gemini 1.5 Flash-8B (Latest)",
-                value = "gemini-1.5-flash-8b-latest",
-                selected = currentModel == "gemini-1.5-flash-8b-latest",
-                onSelect = { viewModel.setModelName("gemini-1.5-flash-8b-latest") }
+                name = "Gemini Flash Lite (Latest)",
+                value = "gemini-flash-lite-latest",
+                selected = currentModel == "gemini-flash-lite-latest",
+                onSelect = { viewModel.setModelName("gemini-flash-lite-latest") }
             )
         }
     }
