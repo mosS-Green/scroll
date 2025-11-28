@@ -6,11 +6,13 @@ import androidx.activity.compose.setContent
 import com.example.screenshotmanager.ui.ScreenshotApp
 import dagger.hilt.android.AndroidEntryPoint
 
+import androidx.activity.enableEdgeToEdge
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        androidx.activity.enableEdgeToEdge()
+        enableEdgeToEdge()
         setContent {
             ScreenshotApp()
         }
